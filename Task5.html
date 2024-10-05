@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Weather App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(to right, #1e1e1e, #333333);
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        .container {
+            background-color: rgba(50, 50, 50, 0.9);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            transition: background-color 0.5s ease;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        input[type="text"] {
+            padding: 12px;
+            width: 80%;
+            margin: 10px 0;
+            border: 2px solid #ffffff;
+            border-radius: 30px;
+            outline: none;
+            font-size: 1rem;
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            input[type="text"]:focus {
+                border-color: #00bcd4;
+                box-shadow: 0 0 12px rgba(0, 188, 212, 0.5);
+            }
+
+        button {
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #00bcd4, #0097a7);
+            border: none;
+            border-radius: 30px;
+            color: #ffffff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+            margin: 5px;
+        }
+
+            button:hover {
+                background: linear-gradient(45deg, #0097a7, #00796b);
+                transform: scale(1.05);
+            }
+
+            button:active {
+                transform: scale(0.95);
+            }
+
+        .loading {
+            display: none;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #ffffff;
+            animation: fadeIn 1s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .weather-info, .forecast-info {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .weather-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            transition: background 0.3s ease;
+        }
+
+            .weather-info h2 {
+                font-size: 1.8rem;
+                margin-bottom: 10px;
+                font-weight: 700;
+                color: #ffffff;
+            }
+
+            .weather-info img {
+                width: 100px;
+                height: 100px;
+                margin-bottom: 15px;
+            }
+
+            .weather-info p {
+                margin: 5px 0;
+                font-size: 1rem;
+                color: #e0e0e0;
+            }
+
+                .weather-info p strong {
+                    color: #00bcd4;
+                }
+
+        .forecast-info {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+            .forecast-info div {
+                background: rgba(0, 0, 0, 0.6);
+                border-radius: 12px;
+                padding: 15px;
+                text-align: center;
+                width: 150px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+                transition: background 0.3s ease, box-shadow 0.3s ease;
+            }
+
+                .forecast-info div:hover {
+                    background: rgba(0, 0, 0, 0.8);
+                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+                }
+
+            .forecast-info img {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 10px;
+            }
+
+            .forecast-info p {
+                margin: 5px 0;
+                font-size: 1rem;
+                color: #e0e0e0;
+            }
+
+                .forecast-info p strong {
+                    color: #00bcd4;
+                }
+
+        .error-message {
+            color: #ff5252;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .history {
+            margin-top: 20px;
+        }
+
+            .history ul {
+                list-style: none;
+                padding: 0;
+            }
+
+            .history li {
+                margin: 5px 0;
+                cursor: pointer;
+                color: #ffeb3b;
+                transition: color 0.3s ease, text-decoration 0.3s ease;
+            }
+
+                .history li:hover {
+                    text-decoration: underline;
+                    color: #ffee58;
+                }
+
+        #back-button {
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #ff5722, #e64a19);
+            border: none;
+            border-radius: 30px;
+            color: #ffffff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+            margin: 5px;
+        }
+
+            #back-button:hover {
+                background: linear-gradient(45deg, #e64a19, #d84315);
+                transform: scale(1.05);
+            }
+
+            #back-button:active {
+                transform: scale(0.95);
+            }
+
+        #delete-history-button {
+            padding: 12px 30px;
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            border: none;
+            border-radius: 30px;
+            color: #ffffff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+            margin: 5px;
+        }
+
+            #delete-history-button:hover {
+                background: linear-gradient(45deg, #d32f2f, #c62828);
+                transform: scale(1.05);
+            }
+
+            #delete-history-button:active {
+                transform: scale(0.95);
+            }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
+            }
+
+            input[type="text"] {
+                width: 90%;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .forecast-info {
+                flex-direction: column;
+                align-items: center;
+            }
+
+                .forecast-info div {
+                    width: 90%;
+                }
+
+            .weather-info img {
+                width: 80px;
+                height: 80px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s forwards;
+        }
+
+        .fade-out {
+            animation: fadeOut 1s forwards;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Advanced Weather App</h1>
+        <input type="text" id="location" placeholder="Enter a location or use geolocation">
+        <button onclick="getWeather()">Get Weather</button>
+        <button onclick="getLocation()">Use My Location</button>
+        <button onclick="toggleTemperatureUnit()">Toggle °C/°F</button>
+        <button id="back-button" style="display: none;" onclick="showMainMenu()">Back to Main Menu</button>
+        <button id="delete-history-button" style="display: none;" onclick="clearHistory()">Delete History</button>
+        <div class="loading" id="loading">Loading...</div>
+        <div class="weather-info" id="weather-info"></div>
+        <div class="forecast-info" id="forecast-info"></div>
+        <div class="error-message" id="error-message"></div>
+        <div class="history" id="search-history">
+            <h3>Search History:</h3>
+            <ul id="history-list"></ul>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = 'f4c48e19ccb5900dfe4981208dd504fa';
+        const loadingElement = document.getElementById('loading');
+        const weatherInfoElement = document.getElementById('weather-info');
+        const forecastInfoElement = document.getElementById('forecast-info');
+        const errorMessageElement = document.getElementById('error-message');
+        const historyListElement = document.getElementById('history-list');
+        const searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+
+        let isCelsius = true;
+
+        function getWeather() {
+            const location = document.getElementById('location').value;
+            if (location) {
+                fetchWeatherData(location);
+            } else {
+                showError('Please enter a location.');
+            }
+        }
+
+        function fetchWeatherData(location) {
+            showLoading(true);
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&appid=${apiKey}&units=${isCelsius ? 'metric' : 'imperial'}`)
+                .then(response => response.json())
+                .then(data => {
+                    showLoading(false);
+                    if (data.cod === 200) {
+                        displayWeatherData(data);
+                        updateSearchHistory(location);
+                    } else {
+                        showError(data.message);
+                    }
+                })
+                .catch(error => {
+                    showLoading(false);
+                    showError('An error occurred while fetching the data.');
+                });
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const { latitude, longitude } = position.coords;
+                    fetchWeatherDataByCoords(latitude, longitude);
+                }, () => {
+                    showError('Unable to retrieve your location.');
+                });
+            } else {
+                showError('Geolocation is not supported by this browser.');
+            }
+        }
+
+        function fetchWeatherDataByCoords(lat, lon) {
+            showLoading(true);
+            fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${isCelsius ? 'metric' : 'imperial'}`)
+                .then(response => response.json())
+                .then(data => {
+                    showLoading(false);
+                    if (data.cod === 200) {
+                        displayWeatherData(data);
+                        updateSearchHistory(`${data.name}, ${data.sys.country}`);
+                    } else {
+                        showError(data.message);
+                    }
+                })
+                .catch(error => {
+                    showLoading(false);
+                    showError('An error occurred while fetching the data.');
+                });
+        }
+
+        function displayWeatherData(data) {
+            const { main, weather, wind } = data;
+            const iconUrl = `https://openweathermap.org/img/wn/${weather[0].icon}.png`;
+            weatherInfoElement.innerHTML = `
+                    <h2>${data.name}, ${data.sys.country}</h2>
+                    <img src="${iconUrl}" alt="${weather[0].description}">
+                    <p><strong>Temperature:</strong> ${main.temp}°${isCelsius ? 'C' : 'F'}</p>
+                    <p><strong>Weather:</strong> ${weather[0].description}</p>
+                    <p><strong>Humidity:</strong> ${main.humidity}%</p>
+                    <p><strong>Wind Speed:</strong> ${wind.speed} m/s</p>
+                `;
+            forecastInfoElement.innerHTML = '';
+            fetchForecastData(data.coord.lat, data.coord.lon);
+            document.getElementById('back-button').style.display = 'inline-block';
+        }
+
+        function fetchForecastData(lat, lon) {
+            fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${isCelsius ? 'metric' : 'imperial'}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.cod === '200') {
+                        displayForecastData(data.list);
+                    }
+                });
+        }
+
+        function displayForecastData(forecastList) {
+            forecastList.slice(0, 5).forEach(forecast => {
+                const { main, weather, dt_txt } = forecast;
+                const iconUrl = `https://openweathermap.org/img/wn/${weather[0].icon}.png`;
+                forecastInfoElement.innerHTML += `
+                        <div>
+                            <img src="${iconUrl}" alt="${weather[0].description}">
+                            <p>${new Date(dt_txt).toLocaleDateString()}</p>
+                            <p><strong>Temp:</strong> ${main.temp}°${isCelsius ? 'C' : 'F'}</p>
+                            <p><strong>Weather:</strong> ${weather[0].description}</p>
+                        </div>
+                    `;
+            });
+        }
+
+        function showLoading(isLoading) {
+            loadingElement.style.display = isLoading ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            errorMessageElement.textContent = message;
+        }
+
+        function updateSearchHistory(location) {
+            if (!searchHistory.includes(location)) {
+                searchHistory.push(location);
+                localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                renderSearchHistory();
+            }
+        }
+
+        function renderSearchHistory() {
+            historyListElement.innerHTML = `
+            <div style="margin-bottom: 10px;">
+                <button onclick="clearHistory()" style="padding: 10px; background: linear-gradient(45deg, #ff5722, #e64a19); border: none; border-radius: 30px; color: #ffffff; cursor: pointer; margin-right: 10px;">
+                    Delete History
+                </button>
+                <button onclick="showMainMenu()" style="padding: 10px; background: linear-gradient(45deg, #2196F3, #1976D2); border: none; border-radius: 30px; color: #ffffff; cursor: pointer;">
+                    Back
+                </button>
+            </div>
+            ${searchHistory.map(item => `<li onclick="searchFromHistory('${item}')">${item}</li>`).join('')}
+        `;
+        }
+
+        function searchFromHistory(location) {
+            document.getElementById('location').value = location;
+            getWeather();
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('searchHistory');
+            searchHistory.length = 0;
+            renderSearchHistory();
+        }
+
+        function toggleTemperatureUnit() {
+            isCelsius = !isCelsius;
+            const location = document.getElementById('location').value;
+            if (location) {
+                fetchWeatherData(location);
+            }
+        }
+
+        function showMainMenu() {
+            document.getElementById('weather-info').innerHTML = '';
+            document.getElementById('forecast-info').innerHTML = '';
+            document.getElementById('error-message').innerHTML = '';
+            document.getElementById('search-history').style.display = 'block';
+            document.getElementById('back-button').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSearchHistory();
+        });
+
+        function showLoading(isLoading) {
+            if (isLoading) {
+                loadingElement.classList.remove('fade-out');
+                loadingElement.classList.add('fade-in');
+                loadingElement.style.display = 'block';
+            } else {
+                loadingElement.classList.remove('fade-in');
+                loadingElement.classList.add('fade-out');
+                setTimeout(() => {
+                    loadingElement.style.display = 'none';
+                }, 1000);
+            }
+        }
+
+        function showError(message) {
+            errorMessageElement.textContent = message;
+            errorMessageElement.classList.remove('fade-out');
+            errorMessageElement.classList.add('fade-in');
+        }
+
+        function hideError() {
+            errorMessageElement.classList.remove('fade-in');
+            errorMessageElement.classList.add('fade-out');
+            setTimeout(() => {
+                errorMessageElement.textContent = '';
+            }, 1000);
+        }
+
+    </script>
+</body>
+</html>
